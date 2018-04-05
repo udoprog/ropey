@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Rope` struct in crate `ropey`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Rope">
+
+    <title>ropey::Rope - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../dark.css">
+    <link rel="stylesheet" type="text/css" href="../main.css" id="themeStyle">
+    <script src="../storage.js"></script>
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
+        
+        <p class='location'>Struct Rope</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.new">new</a><a href="#method.from_str">from_str</a><a href="#method.from_reader">from_reader</a><a href="#method.len_bytes">len_bytes</a><a href="#method.len_chars">len_chars</a><a href="#method.len_lines">len_lines</a><a href="#method.capacity">capacity</a><a href="#method.shrink_to_fit">shrink_to_fit</a><a href="#method.insert">insert</a><a href="#method.insert_char">insert_char</a><a href="#method.remove">remove</a><a href="#method.split_off">split_off</a><a href="#method.append">append</a><a href="#method.byte_to_char">byte_to_char</a><a href="#method.char_to_byte">char_to_byte</a><a href="#method.char_to_line">char_to_line</a><a href="#method.line_to_char">line_to_char</a><a href="#method.char">char</a><a href="#method.line">line</a><a href="#method.slice">slice</a><a href="#method.bytes">bytes</a><a href="#method.chars">chars</a><a href="#method.lines">lines</a><a href="#method.chunks">chunks</a><a href="#method.to_string">to_string</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Clone">Clone</a><a href="#impl-Debug">Debug</a><a href="#impl-Display">Display</a><a href="#impl-Default">Default</a><a href="#impl-PartialEq%3CRope%3E">PartialEq&lt;Rope&gt;</a><a href="#impl-PartialEq%3C%26%27a%20str%3E">PartialEq&lt;&amp;&#39;a str&gt;</a><a href="#impl-PartialEq%3Cstr%3E">PartialEq&lt;str&gt;</a><a href="#impl-PartialEq%3CString%3E">PartialEq&lt;String&gt;</a><a href="#impl-PartialEq%3CCow%3C%27a%2C%20str%3E%3E">PartialEq&lt;Cow&lt;&#39;a, str&gt;&gt;</a><a href="#impl-PartialEq%3CRopeSlice%3C%27a%3E%3E">PartialEq&lt;RopeSlice&lt;&#39;a&gt;&gt;</a></div></div><p class='location'><a href='index.html'>ropey</a></p><script>window.sidebarCurrent = {name: 'Rope', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script></div>
+    </nav>
+
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../theme.js"></script>
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>ropey</a>::<wbr><a class="struct" href=''>Rope</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/ropey/rope.rs.html#64-66' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Rope { /* fields omitted */ }</pre><div class='docblock'><p>A utf8 text rope.</p>
+<p><code>Rope</code>'s atomic unit of data is Unicode scalar values (or <code>char</code>s in Rust).
+Except where otherwise documented, all methods that index into a rope
+or return an index into a rope do so by <code>char</code> index.  This makes the API's
+intuitive and prevents accidentally creating a Rope with invalid utf8 data.</p>
+<p>The primary editing operations available for <code>Rope</code> are insertion of text,
+deletion of text, splitting a <code>Rope</code> in two, and appending one <code>Rope</code> to
+another.  For example:</p>
+
+<pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rope</span> <span class="op">=</span> <span class="ident">Rope</span>::<span class="ident">from_str</span>(<span class="string">&quot;Hello みんなさん!&quot;</span>);
+<span class="ident">rope</span>.<span class="ident">remove</span>(<span class="number">6</span>..<span class="number">11</span>);
+<span class="ident">rope</span>.<span class="ident">insert</span>(<span class="number">6</span>, <span class="string">&quot;world&quot;</span>);
+
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">rope</span>, <span class="string">&quot;Hello world!&quot;</span>);</pre>
+<p>Cloning <code>Rope</code>'s is extremely cheap, taking only a few instructions and
+8 bytes of memory, regardless of text size.  This is accomplished by data
+sharing between <code>Rope</code> clones, and the memory used by clones only grows
+incrementally as the their contents diverge due to edits.  All of this
+is thread safe, and clones can be sent freely between threads.</p>
+<p><code>Rope</code> tracks line endings and has efficient API's for working with lines.
+You can convert between <code>char</code> and line index, determining which line a
+given <code>char</code> is on or the <code>char</code> index of the beginning of a line:</p>
+
+<pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">rope</span> <span class="op">=</span> <span class="ident">Rope</span>::<span class="ident">from_str</span>(<span class="string">&quot;Hello individual!\nHow are you?\nThis text has multiple lines!&quot;</span>);
+
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">rope</span>.<span class="ident">char_to_line</span>(<span class="number">5</span>), <span class="number">0</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">rope</span>.<span class="ident">char_to_line</span>(<span class="number">21</span>), <span class="number">1</span>);
+
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">rope</span>.<span class="ident">line_to_char</span>(<span class="number">0</span>), <span class="number">0</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">rope</span>.<span class="ident">line_to_char</span>(<span class="number">1</span>), <span class="number">18</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">rope</span>.<span class="ident">line_to_char</span>(<span class="number">2</span>), <span class="number">31</span>);</pre>
+<p><code>Rope</code> is written to be fast and memory efficient.  Except where otherwise
+documented, all editing and query operations execute in worst-case
+<code>O(log N)</code> time in the length of the rope.  It is designed to work
+efficiently even for huge (in the gigabytes) and pathological (all on one
+line) texts.  It should be able to handle just about anything you can throw
+at it.</p>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#68-915' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>pub fn <a href='#method.new' class='fnname'>new</a>() -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#73-77' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates an empty <code>Rope</code>.</p>
+</div><h4 id='method.from_str' class="method"><span id='from_str.v' class='invisible'><code>pub fn <a href='#method.from_str' class='fnname'>from_str</a>(text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#82-84' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a <code>Rope</code> from a string slice.</p>
+<p>Runs in O(N) time.</p>
+</div><h4 id='method.from_reader' class="method"><span id='from_reader.v' class='invisible'><code>pub fn <a href='#method.from_reader' class='fnname'>from_reader</a>&lt;T:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/std/io/trait.Read.html" title="trait std::io::Read">Read</a>&gt;(reader: T) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/std/io/error/type.Result.html" title="type std::io::error::Result">Result</a>&lt;Self&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#100-165' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates a <code>Rope</code> from the output of a reader.</p>
+<p>Runs in O(N) time.</p>
+<h1 id="errors" class="section-header"><a href="#errors">Errors</a></h1>
+<ul>
+<li>If the reader returns an error, <code>from_reader</code> stops and returns
+that error.</li>
+<li>If non-utf8 data is encountered, an IO error with kind
+<code>InvalidData</code> is returned.</li>
+</ul>
+<p>Note: some data from the reader is likely consumed even if there is
+an error.</p>
+</div><h4 id='method.len_bytes' class="method"><span id='len_bytes.v' class='invisible'><code>pub fn <a href='#method.len_bytes' class='fnname'>len_bytes</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#173-175' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Total number of bytes in the <code>Rope</code>.</p>
+<p>Runs in O(1) time.</p>
+</div><h4 id='method.len_chars' class="method"><span id='len_chars.v' class='invisible'><code>pub fn <a href='#method.len_chars' class='fnname'>len_chars</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#180-182' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Total number of chars in the <code>Rope</code>.</p>
+<p>Runs in O(1) time.</p>
+</div><h4 id='method.len_lines' class="method"><span id='len_lines.v' class='invisible'><code>pub fn <a href='#method.len_lines' class='fnname'>len_lines</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#187-189' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Total number of lines in the <code>Rope</code>.</p>
+<p>Runs in O(1) time.</p>
+</div><h4 id='method.capacity' class="method"><span id='capacity.v' class='invisible'><code>pub fn <a href='#method.capacity' class='fnname'>capacity</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#201-207' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Total size of the <code>Rope</code>'s text buffer space, in bytes.</p>
+<p>This includes unoccupied text buffer space.  You can calculate
+the unoccupied space with <code>capacity() - len_bytes()</code>.  In general,
+there will always be some unoccupied buffer space.</p>
+<p>Runs in O(N) time.</p>
+</div><h4 id='method.shrink_to_fit' class="method"><span id='shrink_to_fit.v' class='invisible'><code>pub fn <a href='#method.shrink_to_fit' class='fnname'>shrink_to_fit</a>(&amp;mut self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#228-254' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Shrinks the <code>Rope</code>'s capacity to the minimum possible.</p>
+<p>This will rarely result in <code>capacity() == len_bytes()</code>.  <code>Rope</code>
+stores text in a sequence of fixed-capacity chunks, so an exact fit
+only happens for texts that are both a precise multiple of that
+capacity <em>and</em> have code point boundaries that line up exactly with
+the capacity boundaries.</p>
+<p>After calling this, the difference between <code>capacity()</code> and
+<code>len_bytes()</code> is typically under 1KB per megabyte of text in the
+<code>Rope</code>.</p>
+<p><strong>NOTE:</strong> calling this on a <code>Rope</code> clone causes it to stop sharing
+all data with its other clones.  In such cases you will very likely
+be <em>increasing</em> total memory usage despite shrinking the <code>Rope</code>'s
+capacity.</p>
+<p>Runs in O(N) time, and uses O(log N) additional space during
+shrinking.</p>
+</div><h4 id='method.insert' class="method"><span id='insert.v' class='invisible'><code>pub fn <a href='#method.insert' class='fnname'>insert</a>(&amp;mut self, char_idx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#267-381' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Inserts <code>text</code> at char index <code>char_idx</code>.</p>
+<p>Runs in O(M + log N) time, where N is the length of the <code>Rope</code> and M
+is the length of <code>text</code>.</p>
+<h1 id="panics" class="section-header"><a href="#panics">Panics</a></h1>
+<p>Panics if <code>char_idx</code> is out of bounds (i.e. <code>char_idx &gt; len_chars()</code>).</p>
+</div><h4 id='method.insert_char' class="method"><span id='insert_char.v' class='invisible'><code>pub fn <a href='#method.insert_char' class='fnname'>insert_char</a>(&amp;mut self, char_idx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, ch: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#391-394' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Inserts a single char <code>ch</code> at char index <code>char_idx</code>.</p>
+<p>Runs in O(log N) time, where N is the length of the <code>Rope</code>.</p>
+<h1 id="panics-1" class="section-header"><a href="#panics-1">Panics</a></h1>
+<p>Panics if <code>char_idx</code> is out of bounds (i.e. <code>char_idx &gt; len_chars()</code>).</p>
+</div><h4 id='method.remove' class="method"><span id='remove.v' class='invisible'><code>pub fn <a href='#method.remove' class='fnname'>remove</a>&lt;R:&nbsp;CharIdxRange&gt;(&amp;mut self, range: R)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#415-500' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Removes the text in the given char index range.</p>
+<p>Uses range syntax, e.g. <code>2..7</code>, <code>2..</code>, etc.  The range is in <code>char</code>
+indices.</p>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rope</span> <span class="op">=</span> <span class="ident">Rope</span>::<span class="ident">from_str</span>(<span class="string">&quot;Hello world!&quot;</span>);
+<span class="ident">rope</span>.<span class="ident">remove</span>(<span class="number">5</span>..);
+
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;Hello&quot;</span>, <span class="ident">rope</span>);</pre>
+<h1 id="panics-2" class="section-header"><a href="#panics-2">Panics</a></h1>
+<p>Panics if the start of the range is greater than the end, or if the
+end is out of bounds (i.e. <code>end &gt; len_chars()</code>).</p>
+</div><h4 id='method.split_off' class="method"><span id='split_off.v' class='invisible'><code>pub fn <a href='#method.split_off' class='fnname'>split_off</a>(&amp;mut self, char_idx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#508-549' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Splits the <code>Rope</code> at <code>char_idx</code>, returning the right part of
+the split.</p>
+<h1 id="panics-3" class="section-header"><a href="#panics-3">Panics</a></h1>
+<p>Panics if <code>char_idx</code> is out of bounds (i.e. <code>char_idx &gt; len_chars()</code>).</p>
+</div><h4 id='method.append' class="method"><span id='append.v' class='invisible'><code>pub fn <a href='#method.append' class='fnname'>append</a>(&amp;mut self, other: Self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#552-586' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Appends a <code>Rope</code> to the end of this one, consuming the other <code>Rope</code>.</p>
+</div><h4 id='method.byte_to_char' class="method"><span id='byte_to_char.v' class='invisible'><code>pub fn <a href='#method.byte_to_char' class='fnname'>byte_to_char</a>(&amp;self, byte_idx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#597-607' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the char index of the given byte.</p>
+<h1 id="panics-4" class="section-header"><a href="#panics-4">Panics</a></h1>
+<p>Panics if <code>byte_idx</code> is out of bounds (i.e. <code>byte_idx &gt; len_bytes()</code>).</p>
+</div><h4 id='method.char_to_byte' class="method"><span id='char_to_byte.v' class='invisible'><code>pub fn <a href='#method.char_to_byte' class='fnname'>char_to_byte</a>(&amp;self, char_idx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#645-655' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the byte index of the given char.</p>
+<h1 id="panics-5" class="section-header"><a href="#panics-5">Panics</a></h1>
+<p>Panics if <code>char_idx</code> is out of bounds (i.e. <code>char_idx &gt; len_chars()</code>).</p>
+</div><h4 id='method.char_to_line' class="method"><span id='char_to_line.v' class='invisible'><code>pub fn <a href='#method.char_to_line' class='fnname'>char_to_line</a>(&amp;self, char_idx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#670-684' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the line index of the given char.</p>
+<p>Notes:</p>
+<ul>
+<li>Lines are zero-indexed.</li>
+<li>If <code>char_idx</code> is one-past-the-end, then one-past-the-end line index
+is returned.  This is mainly unintuitive for empty ropes, which will
+return a line index of 1 for a <code>char_idx</code> of zero.  Otherwise it
+behaves as expected.</li>
+</ul>
+<h1 id="panics-6" class="section-header"><a href="#panics-6">Panics</a></h1>
+<p>Panics if <code>char_idx</code> is out of bounds (i.e. <code>char_idx &gt; len_chars()</code>).</p>
+</div><h4 id='method.line_to_char' class="method"><span id='line_to_char.v' class='invisible'><code>pub fn <a href='#method.line_to_char' class='fnname'>line_to_char</a>(&amp;self, line_idx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#725-739' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the char index of the start of the given line.</p>
+<p>Notes:</p>
+<ul>
+<li>Lines are zero-indexed.</li>
+<li><code>line_idx</code> can be one-past-the-end, which will return one-past-the-end
+char index.</li>
+</ul>
+<h1 id="panics-7" class="section-header"><a href="#panics-7">Panics</a></h1>
+<p>Panics if <code>line_idx</code> is out of bounds (i.e. <code>line_idx &gt; len_lines()</code>).</p>
+</div><h4 id='method.char' class="method"><span id='char.v' class='invisible'><code>pub fn <a href='#method.char' class='fnname'>char</a>(&amp;self, char_idx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#749-761' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the char at <code>char_idx</code>.</p>
+<h1 id="panics-8" class="section-header"><a href="#panics-8">Panics</a></h1>
+<p>Panics if <code>char_idx</code> is out of bounds (i.e. <code>char_idx &gt;= len_chars()</code>).</p>
+</div><h4 id='method.line' class="method"><span id='line.v' class='invisible'><code>pub fn <a href='#method.line' class='fnname'>line</a>(&amp;self, line_idx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="struct" href="../ropey/struct.RopeSlice.html" title="struct ropey::RopeSlice">RopeSlice</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#770-783' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the line at <code>line_idx</code>.</p>
+<p>Note: lines are zero-indexed.</p>
+<h1 id="panics-9" class="section-header"><a href="#panics-9">Panics</a></h1>
+<p>Panics if <code>line_idx</code> is out of bounds (i.e. <code>line_idx &gt;= len_lines()</code>).</p>
+</div><h4 id='method.slice' class="method"><span id='slice.v' class='invisible'><code>pub fn <a href='#method.slice' class='fnname'>slice</a>&lt;R:&nbsp;CharIdxRange&gt;(&amp;self, range: R) -&gt; <a class="struct" href="../ropey/struct.RopeSlice.html" title="struct ropey::RopeSlice">RopeSlice</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#807-821' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Gets an immutable slice of the <code>Rope</code>.</p>
+<p>Uses range syntax, e.g. <code>2..7</code>, <code>2..</code>, etc.  The range is in <code>char</code>
+indices.</p>
+<h1 id="example-1" class="section-header"><a href="#example-1">Example</a></h1>
+<pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">rope</span> <span class="op">=</span> <span class="ident">Rope</span>::<span class="ident">from_str</span>(<span class="string">&quot;Hello world!&quot;</span>);
+<span class="kw">let</span> <span class="ident">slice</span> <span class="op">=</span> <span class="ident">rope</span>.<span class="ident">slice</span>(..<span class="number">5</span>);
+
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;Hello&quot;</span>, <span class="ident">slice</span>);</pre>
+<h1 id="panics-10" class="section-header"><a href="#panics-10">Panics</a></h1>
+<p>Panics if the start of the range is greater than the end, or if the
+end is out of bounds (i.e. <code>end &gt; len_chars()</code>).</p>
+</div><h4 id='method.bytes' class="method"><div class="important-traits"><div class='tooltip'>ⓘ<span class='tooltiptext'>Important traits for <a class="struct" href="../ropey/iter/struct.Bytes.html" title="struct ropey::iter::Bytes">Bytes</a>&lt;'a&gt;</span></div><div class="content hidden"><h3 class="important">Important traits for <a class="struct" href="../ropey/iter/struct.Bytes.html" title="struct ropey::iter::Bytes">Bytes</a>&lt;'a&gt;</h3><code class="content"><span class="where fmt-newline">impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/iter/iterator/trait.Iterator.html" title="trait core::iter::iterator::Iterator">Iterator</a> for <a class="struct" href="../ropey/iter/struct.Bytes.html" title="struct ropey::iter::Bytes">Bytes</a>&lt;'a&gt;</span><span class="where fmt-newline">    type <a href='https://doc.rust-lang.org/nightly/core/iter/iterator/trait.Iterator.html#associatedtype.Item' class="type">Item</a> = <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>;</span></code></div></div><span id='bytes.v' class='invisible'><code>pub fn <a href='#method.bytes' class='fnname'>bytes</a>(&amp;self) -&gt; <a class="struct" href="../ropey/iter/struct.Bytes.html" title="struct ropey::iter::Bytes">Bytes</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#827-829' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates an iterator over the bytes of the <code>Rope</code>.</p>
+</div><h4 id='method.chars' class="method"><div class="important-traits"><div class='tooltip'>ⓘ<span class='tooltiptext'>Important traits for <a class="struct" href="../ropey/iter/struct.Chars.html" title="struct ropey::iter::Chars">Chars</a>&lt;'a&gt;</span></div><div class="content hidden"><h3 class="important">Important traits for <a class="struct" href="../ropey/iter/struct.Chars.html" title="struct ropey::iter::Chars">Chars</a>&lt;'a&gt;</h3><code class="content"><span class="where fmt-newline">impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/iter/iterator/trait.Iterator.html" title="trait core::iter::iterator::Iterator">Iterator</a> for <a class="struct" href="../ropey/iter/struct.Chars.html" title="struct ropey::iter::Chars">Chars</a>&lt;'a&gt;</span><span class="where fmt-newline">    type <a href='https://doc.rust-lang.org/nightly/core/iter/iterator/trait.Iterator.html#associatedtype.Item' class="type">Item</a> = <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>;</span></code></div></div><span id='chars.v' class='invisible'><code>pub fn <a href='#method.chars' class='fnname'>chars</a>(&amp;self) -&gt; <a class="struct" href="../ropey/iter/struct.Chars.html" title="struct ropey::iter::Chars">Chars</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#832-834' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates an iterator over the chars of the <code>Rope</code>.</p>
+</div><h4 id='method.lines' class="method"><div class="important-traits"><div class='tooltip'>ⓘ<span class='tooltiptext'>Important traits for <a class="struct" href="../ropey/iter/struct.Lines.html" title="struct ropey::iter::Lines">Lines</a>&lt;'a&gt;</span></div><div class="content hidden"><h3 class="important">Important traits for <a class="struct" href="../ropey/iter/struct.Lines.html" title="struct ropey::iter::Lines">Lines</a>&lt;'a&gt;</h3><code class="content"><span class="where fmt-newline">impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/iter/iterator/trait.Iterator.html" title="trait core::iter::iterator::Iterator">Iterator</a> for <a class="struct" href="../ropey/iter/struct.Lines.html" title="struct ropey::iter::Lines">Lines</a>&lt;'a&gt;</span><span class="where fmt-newline">    type <a href='https://doc.rust-lang.org/nightly/core/iter/iterator/trait.Iterator.html#associatedtype.Item' class="type">Item</a> = <a class="struct" href="../ropey/struct.RopeSlice.html" title="struct ropey::RopeSlice">RopeSlice</a>&lt;'a&gt;;</span></code></div></div><span id='lines.v' class='invisible'><code>pub fn <a href='#method.lines' class='fnname'>lines</a>(&amp;self) -&gt; <a class="struct" href="../ropey/iter/struct.Lines.html" title="struct ropey::iter::Lines">Lines</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#837-839' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates an iterator over the lines of the <code>Rope</code>.</p>
+</div><h4 id='method.chunks' class="method"><div class="important-traits"><div class='tooltip'>ⓘ<span class='tooltiptext'>Important traits for <a class="struct" href="../ropey/iter/struct.Chunks.html" title="struct ropey::iter::Chunks">Chunks</a>&lt;'a&gt;</span></div><div class="content hidden"><h3 class="important">Important traits for <a class="struct" href="../ropey/iter/struct.Chunks.html" title="struct ropey::iter::Chunks">Chunks</a>&lt;'a&gt;</h3><code class="content"><span class="where fmt-newline">impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/iter/iterator/trait.Iterator.html" title="trait core::iter::iterator::Iterator">Iterator</a> for <a class="struct" href="../ropey/iter/struct.Chunks.html" title="struct ropey::iter::Chunks">Chunks</a>&lt;'a&gt;</span><span class="where fmt-newline">    type <a href='https://doc.rust-lang.org/nightly/core/iter/iterator/trait.Iterator.html#associatedtype.Item' class="type">Item</a> = &amp;'a <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>;</span></code></div></div><span id='chunks.v' class='invisible'><code>pub fn <a href='#method.chunks' class='fnname'>chunks</a>(&amp;self) -&gt; <a class="struct" href="../ropey/iter/struct.Chunks.html" title="struct ropey::iter::Chunks">Chunks</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#842-844' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Creates an iterator over the chunks of the <code>Rope</code>.</p>
+</div><h4 id='method.to_string' class="method"><span id='to_string.v' class='invisible'><code>pub fn <a href='#method.to_string' class='fnname'>to_string</a>(&amp;self) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#850-857' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the entire text of the <code>Rope</code> as a newly allocated String.</p>
+</div></div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#63' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#63' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#919-923' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, f: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#920-922' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Display' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html" title="trait core::fmt::Display">Display</a> for <a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a></code><a href='#impl-Display' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#925-933' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt-1' class="method"><span id='fmt.v-1' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, f: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#927-932' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Default' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html" title="trait core::default::Default">Default</a> for <a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a></code><a href='#impl-Default' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#935-940' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.default' class="method"><span id='default.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default' class='fnname'>default</a>() -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#937-939' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the &quot;default value&quot; for a type. <a href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default">Read more</a></p>
+</div></div><h3 id='impl-PartialEq%3CRope%3E' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>&lt;<a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a>&gt; for <a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a></code><a href='#impl-PartialEq%3CRope%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#942-947' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#944-946' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-PartialEq%3C%26%27a%20str%3E' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>&lt;&amp;'a <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; for <a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a></code><a href='#impl-PartialEq%3C%26%27a%20str%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#949-954' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq-1' class="method"><span id='eq.v-1' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;&amp;'a <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#951-953' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne-1' class="method"><span id='ne.v-1' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-PartialEq%3CRope%3E-1' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>&lt;<a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a>&gt; for &amp;'a <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code><a href='#impl-PartialEq%3CRope%3E-1' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#956-961' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq-2' class="method"><span id='eq.v-2' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#958-960' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne-2' class="method"><span id='ne.v-2' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-PartialEq%3Cstr%3E' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt; for <a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a></code><a href='#impl-PartialEq%3Cstr%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#963-968' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq-3' class="method"><span id='eq.v-3' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#965-967' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne-3' class="method"><span id='ne.v-3' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-PartialEq%3CRope%3E-2' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>&lt;<a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a>&gt; for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code><a href='#impl-PartialEq%3CRope%3E-2' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#970-975' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq-4' class="method"><span id='eq.v-4' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#972-974' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne-4' class="method"><span id='ne.v-4' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-PartialEq%3CString%3E' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt; for <a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a></code><a href='#impl-PartialEq%3CString%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#977-982' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq-5' class="method"><span id='eq.v-5' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#979-981' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne-5' class="method"><span id='ne.v-5' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-PartialEq%3CRope%3E-3' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>&lt;<a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a>&gt; for <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></code><a href='#impl-PartialEq%3CRope%3E-3' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#984-989' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq-6' class="method"><span id='eq.v-6' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#986-988' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne-6' class="method"><span id='ne.v-6' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-PartialEq%3CCow%3C%27a%2C%20str%3E%3E' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>&lt;<a class="enum" href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html" title="enum alloc::borrow::Cow">Cow</a>&lt;'a, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;&gt; for <a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a></code><a href='#impl-PartialEq%3CCow%3C%27a%2C%20str%3E%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#991-996' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq-7' class="method"><span id='eq.v-7' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="enum" href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html" title="enum alloc::borrow::Cow">Cow</a>&lt;'a, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#993-995' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne-7' class="method"><span id='ne.v-7' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-PartialEq%3CRope%3E-4' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>&lt;<a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a>&gt; for <a class="enum" href="https://doc.rust-lang.org/nightly/alloc/borrow/enum.Cow.html" title="enum alloc::borrow::Cow">Cow</a>&lt;'a, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>&gt;</code><a href='#impl-PartialEq%3CRope%3E-4' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#998-1003' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq-8' class="method"><span id='eq.v-8' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/rope.rs.html#1000-1002' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne-8' class="method"><span id='ne.v-8' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-PartialEq%3CRope%3E-5' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>&lt;<a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a>&gt; for <a class="struct" href="../ropey/struct.RopeSlice.html" title="struct ropey::RopeSlice">RopeSlice</a>&lt;'a&gt;</code><a href='#impl-PartialEq%3CRope%3E-5' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/slice.rs.html#439-444' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq-9' class="method"><span id='eq.v-9' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/slice.rs.html#441-443' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne-9' class="method"><span id='ne.v-9' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-PartialEq%3CRopeSlice%3C%27a%3E%3E' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a>&lt;<a class="struct" href="../ropey/struct.RopeSlice.html" title="struct ropey::RopeSlice">RopeSlice</a>&lt;'a&gt;&gt; for <a class="struct" href="../ropey/struct.Rope.html" title="struct ropey::Rope">Rope</a></code><a href='#impl-PartialEq%3CRopeSlice%3C%27a%3E%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/slice.rs.html#446-451' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq-10' class="method"><span id='eq.v-10' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="struct" href="../ropey/struct.RopeSlice.html" title="struct ropey::RopeSlice">RopeSlice</a>&lt;'a&gt;) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/ropey/slice.rs.html#448-450' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne-10' class="method"><span id='ne.v-10' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt><kbd>?</kbd></dt>
+                    <dd>Show this help dialog</dd>
+                    <dt><kbd>S</kbd></dt>
+                    <dd>Focus the search field</dd>
+                    <dt><kbd>↑</kbd></dt>
+                    <dd>Move up in search results</dd>
+                    <dt><kbd>↓</kbd></dt>
+                    <dd>Move down in search results</dd>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
+                    <dd>Go to active search result</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "ropey";
+    </script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

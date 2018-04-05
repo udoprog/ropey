@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["DefaultSegmenter","Ropey's default grapheme segmenter."],["NullSegmenter","Grapheme segmenter that ignores graphemes completely and treats each code point as an individual segment."]],"trait":[["GraphemeSegmenter","Trait for implementing grapheme segmentation strategies for `Rope`."]]});
